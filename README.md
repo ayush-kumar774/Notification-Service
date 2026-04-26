@@ -1,4 +1,4 @@
-# 🚀 Notification System (Kafka + Redis + AWS SNS)
+#  Notification System (Kafka + Redis + AWS SNS)
 
 A production-grade, event-driven notification system built using Spring Boot, Apache Kafka, Redis, and AWS SNS.
 
@@ -11,7 +11,7 @@ This system demonstrates how modern distributed systems handle:
 
 ---
 
-## 🧠 Architecture Overview
+##  Architecture Overview
 
 - Producer (REST API) → publishes notification events to Kafka
 - Kafka → acts as message broker
@@ -21,7 +21,7 @@ This system demonstrates how modern distributed systems handle:
 
 ---
 
-## 🧩 Tech Stack
+##  Tech Stack
 
 - Java 17
 - Spring Boot 3
@@ -33,31 +33,31 @@ This system demonstrates how modern distributed systems handle:
 
 ---
 
-## ⚙️ Features
+## ️ Features
 
-### ✅ Idempotency (Redis)
+###  Idempotency (Redis)
 Prevents duplicate processing using:
 notif_lock:<transactionId>
 
-### ✅ Retry Mechanism
+###  Retry Mechanism
 - Exponential backoff
 - Automatic retries (Kafka)
 
-### ✅ Dead Letter Queue (DLQ)
+###  Dead Letter Queue (DLQ)
 - Failed messages routed to notification-topic-dlq
 - Retry limit enforced
 
-### ✅ Circuit Breaker (Resilience4j)
+###  Circuit Breaker (Resilience4j)
 - Protects system from SNS outages
 - Fallback handling
 
-### ✅ Failure Classification
+### Failure Classification
 - Retryable failures → retried
 - Permanent failures → skipped
 
 ---
 
-## 📦 API
+## API
 
 ### Send Notification
 
@@ -65,11 +65,24 @@ POST /api/v1/notifications/send
 
 ### Request Body
 
-json {   "transactionId": "{{$guid}}",   "userId": "user@example.com",   "channel": "EMAIL",   "message": "Hello 🚀" }
 
+
+```json
+{
+
+  "transactionId": "{{$guid}}",
+
+  "userId": "user@example.com",
+
+  "channel": "EMAIL",
+
+  "message": "Hello 🚀"
+
+}
+```
 ---
 
-## 🔁 Event Flow
+## Event Flow
 
 1. Client sends request
 2. Producer publishes to Kafka
@@ -83,27 +96,32 @@ json {   "transactionId": "{{$guid}}",   "userId": "user@example.com",   "channe
 
 ---
 
-## 🧪 Running Locally
+## Running Locally
 
 ### 1. Start Kafka & Redis
 
-bash docker-compose up -d
+```bash docker-compose up -d```
 
 ---
 
 ### 2. Set Environment Variables
 
-bash export AWS_REGION=ap-south-1 export AWS_ACCESS_KEY_ID=xxxx export AWS_SECRET_ACCESS_KEY=xxxx export AWS_SNS_TOPIC_ARN=arn:aws:sns:...
+```bash 
+export AWS_REGION=ap-south-1 
+export AWS_ACCESS_KEY_ID=xxxx 
+export AWS_SECRET_ACCESS_KEY=xxxx 
+export AWS_SNS_TOPIC_ARN=arn:aws:sns:...
+```
 
 ---
 
 ### 3. Run Application
 
-bash ./gradlew bootRun
+```bash ./gradlew bootRun```
 
 ---
 
-## 🧠 Design Decisions
+## Design Decisions
 
 ### Why Kafka?
 - Decouples producer & consumer
@@ -123,7 +141,7 @@ bash ./gradlew bootRun
 
 ---
 
-## ⚠️ Edge Cases Handled
+##  Edge Cases Handled
 
 - Duplicate requests
 - SNS failure
@@ -133,7 +151,7 @@ bash ./gradlew bootRun
 
 ---
 
-## 🔥 Future Improvements
+## Future Improvements
 
 - Metrics (Micrometer + Prometheus)
 - Rate limiting
