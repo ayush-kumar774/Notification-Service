@@ -15,4 +15,6 @@ public class NotificationEvent implements Serializable {
     private String userId;
     private String message;
     private String channel;          // e.g., EMAIL, SMS
+    private String type;
+    private String status;
 }
