@@ -21,6 +21,7 @@ public class SnsNotificationService implements NotificationService {
 
     private final SnsClient snsClient;
     private final AwsProperties awsProperties;
+    private final GeminiService geminiService;
 
     @Override
     @CircuitBreaker(name = "snsService", fallbackMethod = "fallback")
@@ -33,37 +34,49 @@ public class SnsNotificationService implements NotificationService {
             return;
         }
 
-        try{
+        String enhancedMessage;
+
+        try {
+            enhancedMessage = geminiService.generateMessage(event.getMessage());
+        } catch (Exception e) {
+            log.warn("Gemini failed, using original message");
+            enhancedMessage = event.getMessage();
+        }
+
+        try {
             PublishRequest request = PublishRequest.builder()
                     .topicArn(awsProperties.getSns().getTopicArn())
-                    .message(buildMessage(event))
+                    .message(buildMessage(event, enhancedMessage))
                     .subject(buildSubject(event))
                     .build();
 
             snsClient.publish(request);
-            log.info("SNS notification sent successfully for txnId={}", event.getTransactionId());
+
+            log.info("SNS notification sent txnId={}", event.getTransactionId());
+
         } catch (SnsException e) {
+
             log.error("SNS error: {}", e.awsErrorDetails().errorMessage());
+
             if (isPermanentFailure(e)) {
                 log.error("Permanent failure. Skipping retry.");
                 return;
             }
-            throw e;
-        }
 
+            throw e; // retryable
+        }
     }
 
     public void fallback(NotificationEvent event, Throwable t) {
-        log.error("Circuit breaker triggered for txnId={}", event.getTransactionId(), t);
-        throw new RuntimeException("SNS unavailable", t);
+        log.error("SNS fallback txnId={}", event.getTransactionId(), t);
     }
 
-    private String buildMessage(NotificationEvent event) {
+    private String buildMessage(NotificationEvent event, String enhancedMessage) {
         return String.format(
                 "UserId: %s\nChannel: %s\nMessage: %s\nTransactionId: %s",
                 event.getUserId(),
                 event.getChannel(),
-                event.getMessage(),
+                enhancedMessage,
                 event.getTransactionId()
         );
     }

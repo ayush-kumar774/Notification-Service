@@ -17,6 +17,11 @@ aws:
     topic-arn: ${AWS_SNS_TOPIC_ARN}
 
 resilience4j:
+  timelimiter:
+    instances:
+      geminiService:
+        timeout-duration: 2s
+
   circuitbreaker:
     instances:
       snsService:
@@ -25,3 +30,14 @@ resilience4j:
         minimum-number-of-calls: 5
         wait-duration-in-open-state: 30s
         permitted-number-of-calls-in-half-open-state: 3
+
+      geminiService:
+        failure-rate-threshold: 50
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        wait-duration-in-open-state: 20s
+
+gemini:
+  api-key: ${GEMINI_API_KEY}
+  base-url: https://generativelanguage.googleapis.com/v1/models/
+  model: gemini-2.0-flash-lite
